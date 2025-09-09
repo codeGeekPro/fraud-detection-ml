@@ -41,6 +41,16 @@ def calculate_metrics(
         "mcc": matthews_corrcoef(y_true, y_pred),
         "roc_auc": roc_auc_score(y_true, y_proba[:, 1]),
     }
-    pr, rc, _ = precision_recall_curve(y_true, y_proba[:, 1])
-    metrics["pr_auc"] = auc(rc, pr)
-    return metrics
+def pr_auc_score(y_true: np.ndarray, y_proba: np.ndarray) -> float:
+    """
+    Calcule l'AUC de la courbe précision-rappel.
+
+    Args:
+        y_true (np.ndarray): Labels réels
+        y_proba (np.ndarray): Probabilités prédites
+
+    Returns:
+        float: Score PR-AUC
+    """
+    precision, recall, _ = precision_recall_curve(y_true, y_proba)
+    return auc(recall, precision)

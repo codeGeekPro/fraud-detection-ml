@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+import os
 
 # Ajout du chemin racine au sys.path
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,7 @@ def main() -> None:
 
     # Setup logging à partir du dict
     log_cfg = config["logging"]
+    os.makedirs("logs", exist_ok=True)
     logging.basicConfig(
         level=getattr(logging, log_cfg.get("level", "INFO")),
         format=log_cfg.get("format", "%(asctime)s - %(levelname)s - %(message)s"),
@@ -61,9 +63,16 @@ def main() -> None:
 
     # Feature engineering
     from src.data.feature_engineer import FeatureEngineer
-    feature_engineer = FeatureEngineer(config["feature_engineering"])
+    os.makedirs("models", exist_ok=True)
+    feature_engineer = FeatureEngineer(save_path="models/feature_engineer.pkl")
     df_feat = feature_engineer.fit_transform(df_prep)
     logger.info(f"Features créées : {df_feat.shape}")
+    
+    # Vérifier les valeurs uniques de la colonne Class
+    if "Class" in df_feat.columns:
+        unique_classes = df_feat["Class"].unique()
+        logger.info(f"Valeurs uniques dans la colonne Class après feature engineering : {unique_classes}")
+        logger.info(f"Type de la colonne Class : {df_feat['Class'].dtype}")
 
     # Séparation train/val/test
     from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -125,6 +134,7 @@ def main() -> None:
     # Sauvegarde du modèle
     try:
         import joblib
+        os.makedirs("models/trained", exist_ok=True)
         joblib.dump(best_model, config["api"]["model_path"])
         logger.info(f"Modèle sauvegardé dans {config['api']['model_path']}")
     except Exception as e:

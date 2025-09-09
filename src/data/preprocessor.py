@@ -63,6 +63,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             f"Initialisation du pipeline de préprocessing: missing_strategy={self.missing_strategy}, scaling_strategy={self.scaling_strategy}"
         )
         self.numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
+        
+        # Exclure la colonne Class du préprocessing si elle existe
+        if "Class" in self.numeric_cols:
+            self.numeric_cols.remove("Class")
+            logger.info("Colonne 'Class' exclue du préprocessing numérique.")
+        
         steps: List = []
 
         # Imputation
@@ -117,6 +123,11 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         X_num_trans = self.pipeline.transform(X_num)
         X_out = X.copy()
         X_out[self.numeric_cols] = X_num_trans
+        
+        # S'assurer que Class reste inchangée
+        if "Class" in X_out.columns:
+            X_out["Class"] = X["Class"]
+        
         return X_out
 
     def fit_transform(

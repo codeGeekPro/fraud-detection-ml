@@ -70,6 +70,9 @@ class FeatureEngineer:
             df["amount_zscore_by_user"] = df.groupby(user_col)["Amount"].transform(
                 lambda x: (x - x.mean()) / x.std(ddof=0)
             )
+        else:
+            # Si pas de colonne utilisateur, calculer le z-score global
+            df["amount_zscore_by_user"] = (df["Amount"] - df["Amount"].mean()) / df["Amount"].std(ddof=0)
         return df
 
     def add_frequency_features(
@@ -99,6 +102,10 @@ class FeatureEngineer:
                 .apply(lambda y: (y.max() - y.min()) <= 86400)
                 .sum()
             )
+        else:
+            # Si pas de colonne utilisateur, utiliser des valeurs par défaut
+            df["frequency_last_1h"] = 1
+            df["frequency_last_24h"] = 1
         return df
 
     def add_amount_deviation_from_avg(
@@ -120,6 +127,10 @@ class FeatureEngineer:
         if user_col in df.columns:
             avg = df.groupby(user_col)["Amount"].transform("mean")
             df["amount_deviation_from_avg"] = df["Amount"] - avg
+        else:
+            # Si pas de colonne utilisateur, utiliser la moyenne globale
+            global_avg = df["Amount"].mean()
+            df["amount_deviation_from_avg"] = df["Amount"] - global_avg
         return df
 
     def add_merchant_risk_score(
@@ -137,8 +148,13 @@ class FeatureEngineer:
         """
         logger.info("Ajout du score de risque marchand.")
         if merchant_col in df.columns and "Class" in df.columns:
-            risk = df.groupby(merchant_col)["Class"].transform("mean")
-            df["merchant_risk_score"] = risk
+            # Créer un score de risque basé sur les features anonymisées
+            # Utiliser une combinaison de features pour simuler un score de risque
+            if "V1" in df.columns and "V2" in df.columns:
+                df["merchant_risk_score"] = (df["V1"] + df["V2"]) / 2
+            else:
+                # Fallback: utiliser une valeur constante si les colonnes n'existent pas
+                df["merchant_risk_score"] = 0.5
         return df
 
     def add_time_since_last_transaction(
@@ -161,6 +177,9 @@ class FeatureEngineer:
             df["time_since_last_transaction"] = (
                 df.groupby(user_col)[time_col].diff().fillna(0)
             )
+        else:
+            # Si pas de colonne utilisateur, utiliser des valeurs par défaut
+            df["time_since_last_transaction"] = 0
         return df
 
     def add_transaction_velocity(
@@ -190,6 +209,9 @@ class FeatureEngineer:
                 .apply(lambda y: (y.max() - y.min()) <= window)
                 .sum()
             )
+        else:
+            # Si pas de colonne utilisateur, utiliser des valeurs par défaut
+            df["transaction_velocity"] = 1
         return df
 
     def encode_categorical(
@@ -247,20 +269,44 @@ class FeatureEngineer:
             pd.DataFrame: DataFrame transformé
         """
         logger.info("Application du pipeline de feature engineering.")
+        logger.info(f"Valeurs uniques Class avant transformations : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_temporal_features(df)
+        logger.info(f"Valeurs uniques Class après temporal : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_amount_zscore_by_user(df)
+        logger.info(f"Valeurs uniques Class après zscore : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_frequency_features(df)
+        logger.info(f"Valeurs uniques Class après frequency : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_amount_deviation_from_avg(df)
+        logger.info(f"Valeurs uniques Class après deviation : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_merchant_risk_score(df)
+        logger.info(f"Valeurs uniques Class après merchant : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_time_since_last_transaction(df)
+        logger.info(f"Valeurs uniques Class après time_since : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         df = self.add_transaction_velocity(df)
-        # Encodage automatique des variables catégorielles
-        for col in df.select_dtypes(include=["object", "category"]).columns:
+        logger.info(f"Valeurs uniques Class après velocity : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
+        # Encodage automatique des variables catégorielles (exclure la colonne Class)
+        categorical_cols = [col for col in df.select_dtypes(include=["object", "category"]).columns if col != "Class"]
+        for col in categorical_cols:
             n_modalities = df[col].nunique()
             if n_modalities <= 10:
                 df = self.encode_categorical(df, col, encoding="onehot")
             elif n_modalities > 10:
                 df = self.encode_categorical(df, col, encoding="target")
+        
+        # S'assurer que la colonne Class reste de type entier
+        if "Class" in df.columns:
+            df["Class"] = df["Class"].astype(int)
+        
+        logger.info(f"Valeurs uniques Class après encodage : {df['Class'].unique() if 'Class' in df.columns else 'N/A'}")
+        
         self.transformations["columns"] = list(df.columns)
         self.save_transformations()
         logger.info("Feature engineering terminé.")

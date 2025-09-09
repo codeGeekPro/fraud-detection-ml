@@ -72,38 +72,46 @@ unzip data/raw/creditcardfraud.zip -d data/raw/
 
 ## 💻 Structure du Projet
 
-```
 fraud-detection-ml/
-├── notebooks/                    # Notebooks Jupyter pour l'analyse
-│   ├── 01_eda_fraud_analysis    # Analyse exploratoire des données
-│   ├── 02_feature_engineering   # Développement des features
-│   ├── 03_model_training       # Expérimentation des modèles
-│   └── 04_model_evaluation     # Évaluation approfondie
-├── src/                        # Code source principal
-│   ├── data/                  # Gestion et preprocessing des données
-│   │   ├── data_loader.py    # Chargement et validation des données
-│   │   ├── preprocessor.py   # Pipeline de preprocessing
-│   │   └── feature_engineer.py # Création de features
-│   ├── models/               # Implémentation des modèles
-│   │   ├── base_model.py    # Classe de base abstraite
-│   │   ├── random_forest_model.py # Implémentation Random Forest
-│   │   └── xgboost_model.py # Implémentation XGBoost
-│   ├── utils/               # Fonctions utilitaires
-│   │   ├── helpers.py      # Fonctions génériques
-│   │   └── metrics.py      # Métriques d'évaluation
-│   └── api/                # API REST pour les prédictions
-│       ├── app.py         # Application FastAPI
-│       └── prediction_service.py # Service de prédiction
-├── tests/                  # Tests unitaires et d'intégration
 ├── config/                 # Fichiers de configuration
 │   └── config.yaml        # Configuration centralisée
-├── models/                 # Modèles et transformations
-│   ├── trained/          # Modèles entraînés
-│   └── metadata/         # Métadonnées des modèles
-└── data/                  # Données du projet
-    ├── raw/              # Données brutes
-    ├── processed/        # Données préprocessées
-    └── external/         # Données externes complémentaires
+├── data/                  # Données du projet
+│   ├── external/         # Données externes complémentaires
+│   ├── processed/        # Données préprocessées
+│   └── raw/             # Données brutes
+├── logs/                  # Journaux d'exécution
+├── models/                # Modèles et transformations
+│   ├── metadata/        # Métadonnées des modèles
+│   └── trained/         # Modèles entraînés
+├── notebooks/             # Notebooks Jupyter pour l'analyse
+│   ├── 01_eda_fraud_analysis.ipynb    # Analyse exploratoire
+│   ├── 02_feature_engineering.ipynb   # Développement features
+│   ├── 03_model_training.ipynb       # Tests des modèles
+│   └── 04_model_evaluation.ipynb     # Évaluation détaillée
+├── scripts/               # Scripts d'exécution
+│   ├── predict.py       # Prédictions en production
+│   └── train_models.py  # Entraînement des modèles
+├── src/                   # Code source principal
+│   ├── api/             # API REST
+│   │   ├── app.py      # Application FastAPI
+│   │   └── prediction_service.py
+│   ├── data/           # Gestion des données
+│   │   ├── data_loader.py
+│   │   ├── feature_engineer.py
+│   │   └── preprocessor.py
+│   ├── models/         # Implémentation modèles
+│   │   ├── base_model.py
+│   │   ├── ensemble_model.py
+│   │   ├── random_forest_model.py
+│   │   └── xgboost_model.py
+│   └── utils/          # Utilitaires
+│       ├── helpers.py
+│       ├── metrics.py
+│       └── visualization.py
+└── tests/                # Tests automatisés
+    ├── test_api.py
+    ├── test_data_processing.py
+    └── test_models.py
 ```
 
 ## 📊 Utilisation

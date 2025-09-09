@@ -89,6 +89,7 @@ fraud-detection-ml/
 │   ├── 03_model_training.ipynb       # Tests des modèles
 │   └── 04_model_evaluation.ipynb     # Évaluation détaillée
 ├── scripts/               # Scripts d'exécution
+│   ├── run_all.py       # Script principal pour tout lancer
 │   ├── predict.py       # Prédictions en production
 │   └── train_models.py  # Entraînement des modèles
 ├── src/                   # Code source principal
@@ -114,7 +115,82 @@ fraud-detection-ml/
     └── test_models.py
 ```
 
-## 📊 Utilisation
+## � Utilisation Rapide
+
+### Script Principal (Recommandé)
+```bash
+# Pipeline complet en une commande
+python scripts/run_all.py --all
+
+# Avec l'API
+python scripts/run_all.py --all --api
+
+# Vérification de l'environnement
+python scripts/run_all.py --check
+```
+
+### Utilisation Détaillée
+
+#### 1. Vérification de l'Environnement
+```bash
+python scripts/run_all.py --check
+```
+Vérifie Python 3.8+, les dépendances, et les fichiers essentiels.
+
+#### 2. Entraînement des Modèles
+```bash
+python scripts/run_all.py --train
+```
+Lance l'entraînement complet avec Random Forest et XGBoost.
+
+#### 3. Évaluation des Performances
+```bash
+python scripts/run_all.py --evaluate
+```
+Évalue les modèles et génère les rapports de performance.
+
+#### 4. Pipeline Complet
+```bash
+python scripts/run_all.py --all
+```
+Exécute entraînement + évaluation + génération de rapports.
+
+#### 5. API de Prédiction
+```bash
+# API seule
+python scripts/run_all.py --api
+
+# API sur un port spécifique
+python scripts/run_all.py --api --host 127.0.0.1 --port 8080
+```
+
+### Utilisation Avancée
+
+#### Mode Strict
+```bash
+python scripts/run_all.py --all --strict
+```
+Arrête le pipeline en cas d'erreur (utile pour CI/CD).
+
+#### Mode Verbose
+```bash
+python scripts/run_all.py --all --verbose
+```
+Affiche tous les détails d'exécution.
+
+#### Combinaisons Personnalisées
+```bash
+# Évaluation seulement
+python scripts/run_all.py --evaluate
+
+# Entraînement + rapport seulement
+python scripts/run_all.py --train --report
+
+# Tout sauf l'API
+python scripts/run_all.py --all
+```
+
+## �📊 Utilisation
 
 ### 1. Analyse Exploratoire
 Explorez les caractéristiques des transactions et la distribution des fraudes :

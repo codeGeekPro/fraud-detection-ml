@@ -38,7 +38,15 @@ class DataLoader:
         Args:
             config_path (str): Chemin vers le fichier de configuration YAML
         """
-        self.config_path = config_path
+        # Convertir en chemin absolu relatif au répertoire racine du projet
+        if not Path(config_path).is_absolute():
+            # Trouver le répertoire racine du projet (celui qui contient src/)
+            current_path = Path(__file__).resolve()
+            project_root = current_path.parent.parent.parent  # Remonter de 3 niveaux: src/data/data_loader.py -> src -> projet
+            self.config_path = str(project_root / config_path)
+        else:
+            self.config_path = config_path
+            
         self.data_config = self._load_config()
 
     def _load_config(self) -> Dict:
